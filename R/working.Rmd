@@ -105,6 +105,26 @@ class(clean_location$LOCATION_NAME)
 ```
 
 ```{r}
-for (clean_location$LOCATION_NAME)
+##for (clean_location$LOCATION_NAME)
 ```
 
+```{r}
+
+dat <- eq_location_clean()
+head(dat)
+```
+
+```{r}
+dat = eq_clean_data()
+head(dat)
+```
+```{r}
+dat2 <- eq_location_clean(dat)
+head(dat2)
+```
+
+
+```{r}
+dat_final <- eq_location_clean()
+head(dat_final)
+```

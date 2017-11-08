@@ -5,7 +5,7 @@
 \title{Read NOAA significant earthquke data}
 \usage{
 read_signif(path = system.file("extdata", "signif.txt", package =
-  "MSDRCapstone"), url = FALSE)
+  "MSDRCapstone3"), url = FALSE)
 }
 \arguments{
 \item{path}{defalut path set to inst/extdata/"signif.txt"}

@@ -11,7 +11,7 @@
 #' dat <- read_signif(url = TRUE)
 #'
 #' @export
-read_signif <- function(path = system.file("extdata", "signif.txt", package = "MSDRCapstone"), url =FALSE) {
+read_signif <- function(path = system.file("extdata", "signif.txt", package = "MSDRCapstone3"), url =FALSE) {
   if (url ==  TRUE){
     signif_dat <- readr::read_delim(url("https://www.ngdc.noaa.gov/nndc/struts/results?type_0=Exact&query_0=$ID&t=101650&s=13&d=189&dfn=signif.txt"),  delim = '\t')
   }else{
@@ -82,7 +82,7 @@ eq_location_clean <- function(dat = eq_clean_data()) {
     tidyr::separate(LOCATION_NAME, c("first", "second"), sep = ":") %>%
     dplyr::select(-first) %>%
     dplyr::rowwise() %>%
-    dpyr:mutate(LOCATION_NAME = ifelse(is.na(second), "Unidentified",
+    dplyr::mutate(LOCATION_NAME = ifelse(is.na(second), "Unidentified",
                                        stringi::stri_trans_totitle(tolower(second)))) %>%
     dplyr::select(-second)
 

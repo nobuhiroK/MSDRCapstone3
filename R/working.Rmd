@@ -1,0 +1,110 @@
+---
+title: "working"
+author: "Nobuhiro Kikuchi"
+date: "2017年10月12日"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+Sys.setlocale("LC_ALL", "C")
+```
+
+```{r}
+head(dat)
+```
+```{r}
+library(dplyr)
+library(magrittr)
+library(lubridate)
+```
+
+
+
+```{r}
+clean_month <- dat %>%
+    filter(is.na(MONTH)) %>%
+    mutate(MONTH = 1)
+head(clean_month)
+```
+
+```{r}
+summary(clean_month$MONTH)
+```
+
+```{r}
+dt_clean_month_day_date <- dat %>%
+  mutate(MONTH = ifelse(is.na(MONTH), 1, MONTH)) %>%
+  mutate(DAY = ifelse(is.na(DAY), 1, DAY)) %>%
+  mutate(DATE = ymd(YEAR, MONTH, DAY))
+```
+
+```{r}
+summary(dt_clean_month_day$MONTH)
+```
+```{r}
+summary(dt_clean_month_day$DAY)
+```
+
+
+
+```{r}
+head(dt_clean_month, 100)
+```
+```{r}
+date <- ymd("1869/2/6")
+date
+```
+
+```{r}
+date2 <- ymd("-1869/2/6")
+date2
+```
+
+
+```{r}
+dt_clean_month_day_date <- dat %>%
+  mutate(MONTH = ifelse(is.na(MONTH), 1, MONTH)) %>%
+  mutate(DAY = ifelse(is.na(DAY), 1, DAY)) %>%
+  mutate(DATE = make_date(YEAR, MONTH, DAY))
+```
+
+```{r}
+summary(dt_clean_month_day_date$DATE)
+```
+
+
+
+```{r}
+dt_clean <- eq_clean_data()
+```
+```{r}
+class(dt_clean$LATITUDE)
+```
+
+```{r}
+class(dt_clean$LONGITUDE)
+```
+
+```{r}
+clean_location <- eq_location_clean()
+```
+
+```{r}
+head(unlist(clean_location$LOCATION_NAME))
+
+```
+
+```{r}
+library(tools)
+toTitleCase(tolower(trimws(strsplit(dt_clean$LOCATION_NAME[1], ":")[[1]][2], "both")))
+```
+
+```{r}
+class(clean_location$LOCATION_NAME)
+```
+
+```{r}
+for (clean_location$LOCATION_NAME)
+```
+

@@ -9,19 +9,19 @@ geom_timeline(mapping = NULL, data = NULL, stat = "identity",
   inherit.aes = TRUE, ...)
 }
 \arguments{
-\item{mapping}{mapping}
+\item{mapping}{aethetics}
 
 \item{data}{cleaned significant data}
 
-\item{stat}{stat}
+\item{stat}{stat transformatiion}
 
-\item{position}{positon}
+\item{position}{adjustment}
 
-\item{na.rm}{n.rm}
+\item{na.rm}{remove na}
 
 \item{show.legend}{show.legend}
 
-\item{inherit.aes}{inherit.aes}
+\item{inherit.aes}{override default}
 
 \item{...}{...}
 }

@@ -125,6 +125,10 @@ head(dat)
 dat2 <- eq_location_clean()
 head(dat2)
 ```
+```{r}
+dat2 <- eq_location_clean()
+head(dat2)
+```
 
 ```{r}
 dat2 <- eq_location_clean(dat)
@@ -136,15 +140,30 @@ head(dat2)
 dat_final <- eq_location_clean()
 head(dat_final)
 ```
+
+```{r}
+library(ggplot2)
+
+```
 ```{r}
 library(tidyverse)
 library(magrittr)
 ```
 ```{r}
-dat2_subset <- dat2 %>%
+dat2_subset <- eq_location_clean() %>%
 dplyr::filter(COUNTRY %in% c('USA', 'JAPAN')) %>%
 dplyr::filter(DATE > '2000-01-01') 
 head(dat2_subset)
+```
+```{r}
+summary(dat2_subset$DATE)
+
+```
+
+```{r}
+ggplot(data=dat2_subset, aes(x=DATE, y=EQ_PRIMARY))+
+  geom_point()
+
 ```
 
 
@@ -153,8 +172,8 @@ dat2_subset %>%
 ggplot() +
 geom_timeline(aes(x = DATE, y = COUNTRY, colour = TOTAL_DEATHS,
                      size = EQ_PRIMARY)) +
-scale_size_continuous(name = 'Richter scale value') +
-scale_color_continuous(name = '# of Deaths')
+##scale_size_continuous(name = 'Richter scale value') +
+##scale_color_continuous(name = '# of Deaths')
 
 ```
 ```{r}
@@ -165,5 +184,128 @@ ggplot(aes(x = DATE,
                size = as.numeric(EQ_PRIMARY)
     )) +
     geom_timeline() 
+```
+
+```{r}
+dat2%>%
+ggplot(aes(x = DATE,
+               y = COUNTRY,
+               color = as.numeric(TOTAL_DEATHS),
+               size = as.numeric(EQ_PRIMARY)
+   )) + geom_timeline()
+```
+
+```{r}
+  ggplot(data = dat2) +
+geom_timeline(aes(x = DATE, y = COUNTRY, size = EQ_PRIMARY, colour = TOTAL_DEATHS))
+
+```
+
+
+```{r}
+library(faraway)
+data(nepali)
+data(worldcup)
+
+
+```
+```{r}
+worldcup %>%
+  dplyr::select(Team, Time) %>%
+  dplyr::group_by(Team) %>%
+  dplyr::mutate(ave_time = mean(Time),
+                min_time = min(Time),
+                max_time = max(Time)) %>%
+  dplyr::arrange(ave_time) %>%
+  dplyr::ungroup() %>%
+  dplyr::mutate(Team = factor(Team, levels = unique(Team))) %>%
+  ggplot(aes(x = Time, y = Team)) + 
+  geom_segment(aes(x = min_time, xend = max_time, yend = Team),
+               alpha = 0.5, color = "gray") + 
+  geom_point(alpha = 0.5) + 
+  geom_point(aes(x = ave_time), size = 2, color = "red", alpha = 0.5) + 
+  theme_minimal() + 
+  ylab("")
+
+
+```
+
+
+
+```{r}
+worldcup %>%
+  dplyr::select(Team, Time) %>%
+  dplyr::group_by(Team) %>%
+  dplyr::mutate(ave_time = mean(Time),
+                min_time = min(Time),
+                max_time = max(Time)) %>%
+  dplyr::arrange(ave_time) %>%
+  dplyr::ungroup() %>%
+  dplyr::mutate(Team = factor(Team, levels = unique(Team))) %>%
+```
+
+
+```{r}
+
+#names(dat2_subset)
+geom_point(alpha = 0.5) + 
+  geom_point(aes(x = ave_time), size = 2, color = "red", alpha = 0.5) + 
+  theme_minimal() + 
+```
+
+```{r}
+###table(dat2_subset$COUNTRY)
+dat2_subset$COUNTRY = as.factor(dat2_subset$COUNTRY)
+```
+
+
+```{r}
+  
+dat2_subset%>%  
+  dplyr::select(DATE, COUNTRY, TOTAL_DEATHS, EQ_PRIMARY)%>%
+  dplyr::mutate(xmin = min(DATE),
+                xmaxdates = max(DATE)) %>%
+  ggplot(aes(x = DATE, y = COUNTRY)) + 
+  geom_segment(aes(x = xmin, xend = xmaxdates, y = COUNTRY, yend = COUNTRY)) + 
+  
+  ylab("")
+
+
+```
+```{r}
+xmin = min(dat2_subset$DATE)
+xmaxdates = max(dat2_subset$DATE)
+xmin
+xmaxdates
+```
+
+
+```{r}
+ggplot(data=dat2_subset, aes(x = DATE, y = COUNTRY)) + 
+  geom_segment(aes(x = xmin, xend = xmaxdates, y = COUNTRY, yend = COUNTRY), alpha=0.5, color = "gray") + 
+  
+  ylab("")
+
+
+
+
+```
+
+
+
+```{r}
+dat2_subset <- eq_location_clean() %>%
+dplyr::filter(COUNTRY %in% c('USA', 'JAPAN')) %>%
+dplyr::filter(DATE > '2000-01-01') 
+head(dat2_subset)
+```
+
+```{r}
+dat2_subset%>%
+    ggplot(aes(x = DATE,
+               y = COUNTRY,
+               colour = as.numeric(TOTAL_DEATHS),
+               size = as.numeric(EQ_PRIMARY)))+
+  geom_timeline()
 ```
 

@@ -299,6 +299,11 @@ dplyr::filter(COUNTRY %in% c('USA', 'JAPAN')) %>%
 dplyr::filter(DATE > '2000-01-01') 
 head(dat2_subset)
 ```
+```{r}
+library(ggplot2)
+library(grid)
+library(scales)
+```
 
 ```{r}
 dat2_subset%>%
@@ -308,4 +313,25 @@ dat2_subset%>%
                size = as.numeric(EQ_PRIMARY)))+
   geom_timeline()
 ```
+```{r}
+dat2_subset%>%
+    ggplot(aes(x = DATE,
+               y = COUNTRY,
+               colour = as.numeric(TOTAL_DEATHS),
+               size = as.numeric(EQ_PRIMARY)))+
+  geom_timeline()+
+  geom_timeline_label(aes(magnitude = as.numeric(EQ_PRIMARY),label = LOCATION_NAME, n_max = 5)) 
+  
+```
 
+
+
+
+```{r}
+
+data <- dat2_subset %>%
+        dplyr::mutate(magnitude = EQ_PRI / max(magnitude) * 1.5) %>%
+        dplyr::group_by(group) %>%
+        dplyr::top_n(n_max, magnitude)
+
+```

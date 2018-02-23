@@ -51,6 +51,7 @@ eq_clean_data <- function(dat = read_signif()) {
     dplyr::mutate(LATITUDE = as.numeric(LATITUDE)) %>%
     dplyr::mutate(LONGITUDE = as.numeric(LONGITUDE))
 
+
 }
 
 #' cleans the LOCATION_NAME
@@ -81,12 +82,16 @@ eq_location_clean <- function(dat = eq_clean_data()) {
   clean_location <- dat %>%
     tidyr::separate(LOCATION_NAME, c("first", "second"), sep = ":") %>%
     dplyr::select(-first) %>%
-    dplyr::rowwise() %>%
+    ###dplyr::rowwise() %>%
     dplyr::mutate(LOCATION_NAME = ifelse(is.na(second), "Unidentified",
                                        stringi::stri_trans_totitle(tolower(second)))) %>%
+
+
     dplyr::select(-second)
 
+
 }
+
 
 
 

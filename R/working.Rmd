@@ -5,7 +5,27 @@ date: "2017年10月12日"
 output: html_document
 ---
 ```{r}
+Sys.setlocale("LC_ALL", "C")
+```
 
+
+
+```{r, warning=FALSE, message=FALSE}
+library(dplyr)
+library(magrittr)
+```
+
+
+```{r}
+dat <- eq_location_clean()
+head(dat)
+```
+```{r}
+dat %>%
+dplyr::filter(COUNTRY %in% c('JAPAN')) %>%
+dplyr::filter(DATE > '2000-01-01') %>%
+dplyr::mutate(popup_text = eq_create_label(.)) %>%
+eq_map(annot_col = "popup_text")
 ```
 
 ```{r setup, include=FALSE}
@@ -16,6 +36,7 @@ Sys.setlocale("LC_ALL", "C")
 ```{r}
 head(dat)
 ```
+
 ```{r}
 library(dplyr)
 library(magrittr)
@@ -145,10 +166,12 @@ head(dat_final)
 library(ggplot2)
 
 ```
+
 ```{r}
 library(tidyverse)
 library(magrittr)
 ```
+
 ```{r}
 dat2_subset <- eq_location_clean() %>%
 dplyr::filter(COUNTRY %in% c('USA', 'JAPAN')) %>%
@@ -335,3 +358,925 @@ data <- dat2_subset %>%
         dplyr::top_n(n_max, magnitude)
 
 ```
+
+```{r}
+library(magrittr)
+library(leaflet)
+```
+
+
+```{r}
+
+eq_clean_data() %>%
+  dplyr::filter(COUNTRY %in% c('JAPAN')) %>%
+  dplyr::filter(DATE > '2000-01-01') %>%
+  eq_map(annot_col="DATE")
+```
+
+
+
+```{r}
+library(purrr)
+```
+
+```{r}
+dt <-eq_location_clean() %>%
+  dplyr::filter(COUNTRY %in% c('JAPAN')) %>%
+  dplyr::filter(DATE > '2010-01-01') %>%
+  dplyr::mutate(popup_text = eq_create_label(.)) 
+  ##eq_map(annot_col = "popup_text")
+
+```
+
+```{r}
+popup_conditional <- function(data) {
+    popup <- ''
+    if (!(is.na(data$LOCATION_NAME))) {
+      popup <- paste0(popup, '<b>Location:</b> ', data$LOCATION_NAME, '<br/>')
+    }
+    else if (!(is.na(data$EQ_PRIMARY))) {
+      popup <- paste0(popup, '<b>Magnitude:</b> ', data$EQ_PRIMARY, '<br/>')
+    }
+    else if (!(is.na(data$TOTAL_DEATHS))) {
+      popup <- paste0(popup, '<b>Total Deaths:</b> ', data$TOTAL_DEATHS, '<br/>')
+    }
+    popup
+  }
+```
+
+```{r}
+dat2_subset
+```
+
+
+```{r}
+  data <- dat2_subset %>%
+    dplyr::mutate(popup_text = popup_conditional(.))
+
+  data$popup_text
+```
+```{r}
+names(dat2_subset)
+
+```
+
+
+```{r}
+popup_text <- purrr::pmap_chr(
+      list(LOCATION_NAME, EQ_PRIMARY,
+           TOTAL_DEATHS),
+      popup_conditional
+    )
+
+```
+
+
+```{r}
+eq_create_label <- function(data) {
+  labeling <- function(ln, mag, td, dt) {
+    label <- ''
+    if (!(is.na(dt))) {
+      label <- paste0(label,
+                      '<b>Date:</b> ',
+                      as.Date(dt, origin = '1970-01-01'),
+                      '<br/>')
+    }
+    if (!(is.na(ln))) {
+      label <- paste0(label, '<b>Location:</b> ', ln, '<br/>')
+    }
+    if (!(is.na(mag))) {
+      label <- paste0(label, '<b>Magnitude:</b> ', mag, '<br/>')
+    }
+    if (!(is.na(td))) {
+      label <- paste0(label, '<b>Total Deaths:</b> ', td, '<br/>')
+    }
+    label
+  }
+
+  data <- data %>%
+    dplyr::mutate_(popup_text = ~purrr::pmap_chr(
+      list(LOCATION_NAME, EQ_PRIMARY,
+           TOTAL_DEATHS, DATE),
+      labeling
+    ))
+
+  data$popup_text
+}
+
+```
+
+
+```{r}
+
+quakes <- eq_location_clean() %>%
+  dplyr::filter(COUNTRY == 'JAPAN') %>%
+  dplyr::filter(lubridate::year(DATE) >= 2000) %>%
+  dplyr::mutate(popup_text = eq_create_label(.))
+
+eq_map(quakes, annot_col = 'popup_text')
+
+
+
+```
+
+```{r}
+library(stringr)
+```
+
+```{r}
+eq_create_label <- function(data) {
+  
+  
+  new_data<- data %>% dplyr::select_(.dots=c('LOCATION_NAME','EQ_PRIMARY','TOTAL_DEATHS')) %>%
+    dplyr::mutate_(new_LOCATION_NAME = ~ ifelse(is.na(LOCATION_NAME), LOCATION_NAME, paste0("<b>Location:</b> ", LOCATION_NAME,"<br />"))) %>%
+    dplyr::mutate_(new_EQ_PRIMARY = ~ ifelse(is.na(EQ_PRIMARY), EQ_PRIMARY, paste0("<b>Magnitude:</b> ", EQ_PRIMARY,"<br />"))) %>%
+    dplyr::mutate_(new_DEATHS = ~ ifelse(is.na(TOTAL_DEATHS), TOTAL_DEATHS, paste0("<b>Total Deaths:</b> ", TOTAL_DEATHS))) %>%
+    tidyr::unite_('popup_values',c('new_LOCATION_NAME','new_EQ_PRIMARY','new_DEATHS'),sep ='') %>%
+    dplyr::mutate_(popup_values = ~ stringr::str_replace_all(popup_values,"[,]*NA[,]*","")) %>%
+    dplyr::mutate_(popup_values = ~ ifelse(popup_values=="","All Values are NA",popup_values))
+  
+  popup_values <- dplyr::collect(dplyr::select_(new_data,.dots=c('popup_values')))[[1]]
+  
+  return(popup_values)
+  
+}
+
+```
+
+```{r}
+library(lubridate)
+```
+
+
+```{r}
+ eq_location_clean() %>%
+  dplyr::filter(COUNTRY == "JAPAN")%>%
+  dplyr::filter(DATE > '2010-01-01') %>%
+  dplyr::mutate(popup_text = eq_create_label(.)) %>%
+  eq_map(annot_col = "popup_text")
+```
+
+
+```{r}
+eq_create_label <- function(df) {
+  df %>%
+  dplyr::mutate(location = ifelse(is.na(LOCATION_NAME), '', paste("<b>Location: </b>", LOCATION_NAME, "<br>")),
+                magnitude = ifelse(is.na(EQ_PRIMARY), '', paste("<b>Magnitude: </b>", EQ_PRIMARY, "<br>")),
+                deaths = ifelse(is.na(TOTAL_DEATHS), '', paste("<b>Total deaths: </b>", TOTAL_DEATHS))) %>%
+    dplyr::rowwise() %>%
+    do(popup_text = paste(.$location, .$magnitude, .$death)) %>%
+    unlist(recursive = FALSE) %>%
+    as.character
+}
+```
+
+
+```{r}
+ eq_location_clean() %>%
+  dplyr::filter(COUNTRY == "JAPAN")%>%
+  dplyr::filter(DATE > '2010-01-01') %>%
+  dplyr::mutate(popup_text = eq_create_label(.)) %>%
+  eq_map(annot_col = "popup_text")
+```
+
+
+```{r}
+library(tidyr)
+
+```
+
+
+```{r}
+library(tidyr)
+eq_create_label <- function(df) {
+
+  
+  #Creating the "popup_text" without using NA Labels
+  data2<- df %>% dplyr::select_(.dots=c('LOCATION_NAME','EQ_PRIMARY','TOTAL_DEATHS')) 
+  
+  data2%>%
+  dplyr::mutate_(new_LOCATION_NAME = ~ ifelse(is.na(LOCATION_NAME), LOCATION_NAME, paste0("<b>Location:</b> ", LOCATION_NAME,"<br />"))) %>%
+    dplyr::mutate_(new_EQ_PRIMARY = ~ ifelse(is.na(EQ_PRIMARY), EQ_MAG_ML, paste0("<b>Magnitude:</b> ", EQ_PRIMARY,"<br />"))) %>%
+    dplyr::mutate_(new_DEATHS = ~ ifelse(is.na(TOTAL_DEATHS), TOTAL_DEATHS, paste0("<b>Total Deaths:</b> ", TOTAL_DEATHS))) %>%
+    tidyr::unite_('popup_values',c('new_LOCATION_NAME','new_EQ_PRIMARY','new_DEATHS'),sep ='')%>%
+    ##dplyr::mutate_(popup_values = ~ stringr::str_replace_all(popup_values,"[,]*NA[,]*","")) %>%
+    ###dplyr::mutate_(popup_values = ~ ifelse(popup_values=="","All Values are NA",popup_values))
+    dplyr::mutate_(popup_values=popup_values)
+  
+  popup_text <- dplyr::collect(dplyr::select(data2,.dots=c('popup_values')))[[1]]
+  
+  return(popup_text)
+  
+}
+```
+
+
+```{r}
+ eq_location_clean() %>%
+  dplyr::filter(COUNTRY == "JAPAN")%>%
+  dplyr::filter(DATE > '2010-01-01') %>%
+  dplyr::mutate(popup_text = eq_create_label(.)) %>%
+  eq_map(annot_col = "popup_text")
+```
+
+
+```{r}
+eq_create_label <- function(df) {
+    paste(sep = "<br/>",
+          paste("<b>Location:</b>", df$LOCATION_NAME),
+          paste("<b>Magnitude:</b>", df$EQ_PRIMARY),
+          paste("<b>Total deaths:</b>", df$TOTAL_DEATHS)
+    )
+}
+
+```
+
+```{r}
+ eq_location_clean() %>%
+  dplyr::filter(COUNTRY == "JAPAN")%>%
+  dplyr::filter(DATE > '2010-01-01') %>%
+  
+  eq_map(annot_col = "DATE")
+```
+```{r}
+
+dat3 <- eq_location_clean() %>%
+  dplyr::filter(COUNTRY == "JAPAN")%>%
+  dplyr::filter(DATE > '2000-01-01') 
+
+```
+
+if (!(is.na(dt))) {
+      label <- paste0(label,
+                      '<b>Date:</b> ',
+                      as.Date(dt, origin = '1970-01-01'),
+                      '<br/>')
+    }
+    if (!(is.na(ln))) {
+      label <- paste0(label, '<b>Location:</b> ', ln, '<br/>')
+    }
+    if (!(is.na(mag))) {
+      label <- paste0(label, '<b>Magnitude:</b> ', mag, '<br/>')
+    }
+    if (!(is.na(td))) {
+      label <- paste0(label, '<b>Total Deaths:</b> ', td, '<br/>')
+    }
+    label
+  }
+```{r}
+dat3_popup <- dat3 %>%
+  dplyr::mutate(location = ifelse(!is.na(LOCATION_NAME),
+                             paste0("<b>Location name:</b>", LOCATION_NAME, "<br />"),  "")) %>%
+  dplyr::mutate(mag = ifelse(!is.na(EQ_PRIMARY),
+                             paste0("<b>Magnitude:</b>", EQ_PRIMARY, "<br />"),  "")) %>%
+  dplyr::mutate(tot= ifelse(!is.na(TOTAL_DEATHS), 
+                             paste0("<b>Total deaths:</b>", TOTAL_DEATHS, "<br />"),  "")) %>%
+  dplyr::mutate(popup_info = paste(location, mag, tot, sep = ''))
+  
+  
+  
+  
+
+```
+
+
+
+```{r}
+dat3_popup$popup_info
+```
+
+```{r}
+dat3_popup%>%
+   eq_map(annot_col = "popup_info")
+```
+###dplyr::mutate_(popup_text = paste(location, mag, tot, sep = ''))
+
+
+```{r}
+
+eq_create_label <- function(df) {
+dat_popup <- df %>%
+  rowwise%>%
+  dplyr::mutate(location = ifelse(!is.na(df$LOCATION_NAME),
+                             paste0("<b>Location name:</b>", df$LOCATION_NAME, "<br />"),  "")) %>%
+  dplyr::mutate(mag = ifelse(!is.na(df$EQ_PRIMARY),
+                             paste0("<b>Magnitude:</b>", df$EQ_PRIMARY, "<br />"),  "")) %>%
+  dplyr::mutate(tot = ifelse(!is.na(df$TOTAL_DEATHS), 
+                             paste0("<b>Total deaths:</b>", df$TOTAL_DEATHS, "<br />"),  ""))%>%
+  dplyr::mutate_(popup_text = paste(location, mag, tot, sep = ''))
+  return(as.vector(dat_popup$popup_text))
+  
+  
+  
+}
+  
+
+```
+
+
+```{r}
+
+eq_create_label <- function(df) {
+dat_popup <- df %>%
+  dplyr::mutate(UQ("location") := ifelse(!is.na(df$LOCATION_NAME),
+                             paste0("<b>Location name:</b>", df$LOCATION_NAME, "<br />"),  "")) %>%
+  dplyr::mutate(UQ("mag") := ifelse(!is.na(df$EQ_PRIMARY),
+                             paste0("<b>Magnitude:</b>", df$EQ_PRIMARY, "<br />"),  "")) %>%
+  dplyr::mutate(UQ("tot") := ifelse(!is.na(df$TOTAL_DEATHS), 
+                             paste0("<b>Total deaths:</b>", df$TOTAL_DEATHS, "<br />"),  ""))
+  
+  
+  
+}
+  
+
+```
+
+```{r}
+eq_create_label(dat)
+```
+
+
+```{r}
+dt_popup <-  eq_location_clean() %>%
+  dplyr::filter(COUNTRY == "JAPAN")%>%
+  dplyr::filter(DATE > '2000-01-01') %>%
+  dplyr::mutate(popup_text = eq_create_label(.))
+```
+
+```{r}
+dat <-eq_location_clean()
+head(dat)
+```
+```{r}
+library(purrr)
+```
+
+
+```{r}
+
+
+eq_create_label <- function(){
+  dat = eq_location_clean()
+  dat_popup <- dat %>%
+    dplyr::mutate(location = ifelse(!is.na(LOCATION_NAME),
+                                    paste0("<b>Location name:</b>", LOCATION_NAME, "<br />"),  "")) %>%
+    dplyr::mutate(mag = ifelse(!is.na(EQ_PRIMARY),
+                               paste0("<b>Magnitude:</b>", EQ_PRIMARY, "<br />"),  "")) %>%
+    dplyr::mutate(tot= ifelse(!is.na(TOTAL_DEATHS),
+                              paste0("<b>Total deaths:</b>", TOTAL_DEATHS, "<br />"),  "")) %>%
+    dplyr::mutate(popup_info = paste(as.character(location), as.character(mag), as.character(tot), sep = ''))%>%
+    dplyr::filter(COUNTRY == "JAPAN")%>%
+    dplyr::filter(DATE > '2010-01-01') 
+  
+  dat_popup$popup_info <- as.character(dat_popup$popup_info)
+  popup_text = dat_popup$popup_info
+  return(as.data.frame(popup_text))
+
+}
+```
+
+```{r}
+popup_label <-eq_create_label()
+dim(popup_label)
+head(popup_label)
+```
+
+```{r}
+popup  <-dat %>%
+  dplyr::filter(COUNTRY == "JAPAN")%>%
+  dplyr::filter(DATE > '2010-01-01')
+head(popup)
+nrow(popup)
+```
+
+```{r}
+popup <-eq_create_label()
+dim(popup)
+head(popup)
+```
+
+```{r}
+ eq_location_clean() %>%
+  dplyr::filter(COUNTRY == "JAPAN")%>%
+  dplyr::filter(DATE > '2010-01-01') %>%
+  dplyr::mutate(popup_text = eq_create_label()) %>%
+  eq_map(annot_col = "popup_text")
+```
+```{r}
+
+ popup  <-dat %>%
+  dplyr::filter(COUNTRY == "JAPAN")%>%
+  dplyr::filter(DATE > '2010-01-01') %>%
+  dplyr::mutate(popup_text = eq_create_label())
+
+
+popup
+```
+
+
+
+```{r}
+eq_location_clean <- function(dat = eq_clean_data()) {
+  clean_location <- dat %>%
+    tidyr::separate(LOCATION_NAME, c("first", "second"), sep = ":") %>%
+    dplyr::select(-first) %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(LOCATION_NAME = ifelse(is.na(second), "Unidentified",
+                                       stringi::stri_trans_totitle(tolower(second)))) %>%
+    dplyr::mutate(location = ifelse(!is.na(LOCATION_NAME),
+                                    paste0("<b>Location name:</b>", LOCATION_NAME, "<br />"),  "")) %>%
+    dplyr::mutate(mag = ifelse(!is.na(EQ_PRIMARY),
+                               paste0("<b>Magnitude:</b>", EQ_PRIMARY, "<br />"),  "")) %>%
+    dplyr::mutate(tot= ifelse(!is.na(TOTAL_DEATHS),
+                              paste0("<b>Total deaths:</b>", TOTAL_DEATHS, "<br />"),  "")) %>%
+    dplyr::mutate(popup_text = paste(location, mag, tot, sep = ''))%>%
+    dplyr::select(-second)
+
+
+}
+```
+
+
+```{r}
+eq_location_clean <- function(dat = eq_clean_data()) {
+  clean_location <- dat %>%
+    tidyr::separate(LOCATION_NAME, c("first", "second"), sep = ":") %>%
+    dplyr::select(-first) %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(LOCATION_NAME = ifelse(is.na(second), "Unidentified",
+                                       stringi::stri_trans_totitle(tolower(second)))) %>%
+  
+    dplyr::select(-second)
+
+
+}
+```
+
+```{r}
+eq_location_clean <- function(dat = eq_clean_data()) {
+  clean_location <- dat %>%
+    tidyr::separate(LOCATION_NAME, c("first", "second"), sep = ":") %>%
+    dplyr::select(-first) %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(LOCATION_NAME = ifelse(is.na(second), "Unidentified",
+                                       stringi::stri_trans_totitle(tolower(second)))) %>%
+    dplyr::mutate(location = ifelse(!is.na(LOCATION_NAME),
+                                    paste0("<b>Location name:</b>", LOCATION_NAME, "<br />"),  "")) %>%
+    dplyr::mutate(mag = ifelse(!is.na(EQ_PRIMARY),
+                               paste0("<b>Magnitude:</b>", EQ_PRIMARY, "<br />"),  "")) %>%
+    dplyr::mutate(tot = ifelse(!is.na(TOTAL_DEATHS),
+                               paste0("<b>Total deaths:</b>", TOTAL_DEATHS, "<br />"),  ""))%>%
+
+    dplyr::select(-second)
+
+
+}
+
+```
+
+
+
+
+
+```{r}
+
+dat <-eq_location_clean()
+head(dat)
+```
+
+
+
+```{r}
+dat %>%
+  dplyr::filter(COUNTRY == "JAPAN")%>%
+  dplyr::filter(DATE > '2010-01-01') %>%
+  ##dplyr::mutate(popup_text = eq_create_label())
+  eq_map(annot_col = "popup_text")
+
+
+
+```
+
+```{r}
+eq_create_label <- function(df) {
+
+  
+  #Creating the "popup_text" without using NA Labels
+  data2<- df %>% dplyr::select(.dots=c('LOCATION_NAME','EQ_PRIMARY','TOTAL_DEATHS')) 
+  
+  data2%>%
+  dplyr::mutate(UQ('new_LOCATION_NAME') = ~ ifelse(is.na(LOCATION_NAME), LOCATION_NAME, paste0("<b>Location:</b> ", LOCATION_NAME,"<br />"))) %>%
+    dplyr::mutate(UQ('new_EQ_PRIMARY') = ~ ifelse(is.na(EQ_PRIMARY), EQ_MAG_ML, paste0("<b>Magnitude:</b> ", EQ_PRIMARY,"<br />"))) %>%
+    dplyr::mutate(UQ('new_DEATHS') = ~ ifelse(is.na(TOTAL_DEATHS), TOTAL_DEATHS, paste0("<b>Total Deaths:</b> ", TOTAL_DEATHS))) %>%
+    tidyr::unite(UQ('popup_values'),c('new_LOCATION_NAME','new_EQ_PRIMARY','new_DEATHS'),sep ='')%>%
+    dplyr::mutate(popup_values = ~ stringr::str_replace_all(popup_values,"[,]*NA[,]*","")) %>%
+    dplyr::mutate(popup_values = ~ ifelse(popup_values=="","All Values are NA",popup_values))
+    dplyr::mutate(popup_values=popup_values)
+  
+  popup_text <- dplyr::collect(dplyr::select(data2,.dots=c('popup_values')))[[1]]
+  
+  return(popup_text)
+  
+}
+
+```
+
+
+
+```{r}
+eq_create_label <- function(dat){
+  ##dat = eq_location_clean()
+  dat_popup <- dat %>%
+    rowwise%>%
+    dplyr::mutate(location = ifelse(!is.na(LOCATION_NAME),
+                                    paste0("<b>Location name:</b>", LOCATION_NAME, "<br />"),  "")) %>%
+    dplyr::mutate(mag = ifelse(!is.na(EQ_PRIMARY),
+                               paste0("<b>Magnitude:</b>", EQ_PRIMARY, "<br />"),  "")) %>%
+    dplyr::mutate(tot= ifelse(!is.na(TOTAL_DEATHS),
+                              paste0("<b>Total deaths:</b>", TOTAL_DEATHS, "<br />"),  "")) %>%
+    tidyr::unite('popup_info' = paste(location, mag, tot, sep = ''))%>%
+    ##dplyr::filter(COUNTRY == "JAPAN")%>%
+    ###dplyr::filter(DATE > '2010-01-01') 
+  
+  #dat_popup$popup_info <- as.character(dat_popup$popup_info)
+  #popup_text = dat_popup$popup_info
+  #return(as.data.frame(popup_text))
+  
+  popup_text <- dplyr::collect(dplyr::select(dat_popup,.dots=c('popup_info')))[[1]]
+  
+  return(popup_text)
+  
+
+}
+```
+
+```{r}
+dat_popup <- dat%>%
+  dplyr::filter(COUNTRY == "JAPAN")%>%
+  dplyr::filter(DATE > '2010-01-01') 
+
+head(dat_popup)
+  
+```
+
+```{r}
+popup_text <- eq_create_label(dat_popup)
+```
+
+
+```{r}
+dat %>%
+  dplyr::filter(COUNTRY == "JAPAN")%>%
+  dplyr::filter(DATE > '2010-01-01') %>%
+  ##dplyr::mutate(popup_text = eq_create_label(.))
+  eq_map(annot_col = "DATE")
+```
+
+
+```{r}
+dat_new <- eq_location_clean()
+head(dat_new)
+```
+```{r}
+eq_create_label <- function(data){
+  new_data<- data %>% dplyr::select_(.dots=c('location', 'mag', 'tot')) %>%
+    dplyr::mutate_('popup_values'=paste0(location, mag, tot))
+  popup_values <- dplyr::collect(dplyr::select_(new_data,.dots=c('popup_values')))[[1]]
+  
+  return(popup_values)
+}
+```
+
+```{r}
+names(dat_new)
+head(dat_new$mag)
+```
+
+
+
+```{r}
+new_data<- dat_new %>% dplyr::select(location, mag, tot) %>%
+    dplyr::mutate_(popup_values=paste(location, mag, tot, sep = " "))
+popup_values <- dplyr::collect(dplyr::select_(new_data,.dots=c('popup_values')))[[1]]
+```
+
+```{r}
+eq_create_label <- function(df){
+  new_data<- df %>% dplyr::mutate_(popup_values=paste(location, mag, tot, sep = " "))
+  popup_values <- dplyr::collect(dplyr::select_(new_data,.dots=c('popup_values')))[[1]]
+  
+  return(popup_values)
+}
+```
+
+```{r}
+eq_create_label <- function() {
+  
+  #Creating the "popup_text" without using NA Labels
+  data2<- eq_location_clean() %>% dplyr::select_(.dots=c('LOCATION_NAME','EQ_MAG_ML','DEATHS')) %>%
+    dplyr::mutate('new_LOCATION_NAME' = ~ ifelse(is.na(LOCATION_NAME), LOCATION_NAME, paste0("<b>Location:</b> ", LOCATION_NAME,"<br />"))) %>%
+    dplyr::mutate('new_EQ_PRIMARY' = ~ ifelse(is.na(EQ_PRIMARY), EQ_PRIMARY, paste0("<b>Magnitude:</b> ", EQ_MAG_ML,"<br />"))) %>%
+    dplyr::mutate('new_DEATHS' = ~ ifelse(is.na(TOTAL_DEATHS), TOTAL_DEATHS, paste0("<b>Total Deaths:</b> ", DEATHS))) %>%
+    tidyr::unite('popup_values',c('new_LOCATION_NAME','new_EQ_PRIMARY','new_DEATHS'),sep ='') %>%
+    dplyr::mutate(popup_values = ~ stringr::str_replace_all(popup_values,"[,]*NA[,]*","")) %>%
+    dplyr::mutate(popup_values = ~ ifelse(popup_values=="","All Values are NA",popup_values))
+  
+  popup_values <- dplyr::collect(dplyr::select(data2,.dots=c('popup_values')))[[1]]
+  
+  return(popup_values)
+  
+}
+```
+
+
+```{r}
+label <- eq_create_label(dat_new)
+
+```
+
+
+```{r}
+new_data<- data %>% dplyr::select_(.dots=c('LOCATION_NAME','EQ_PRIMARY','TOTAL_DEATHS')) %>%
+    dplyr::mutate_(new_LOCATION_NAME = ~ ifelse(is.na(LOCATION_NAME), LOCATION_NAME, paste0("<b>Location:</b> ", LOCATION_NAME,"<br />"))) %>%
+    dplyr::mutate_(new_EQ_PRIMARY = ~ ifelse(is.na(EQ_PRIMARY), EQ_PRIMARY, paste0("<b>Magnitude:</b> ", EQ_PRIMARY,"<br />"))) %>%
+    dplyr::mutate_(new_DEATHS = ~ ifelse(is.na(TOTAL_DEATHS), TOTAL_DEATHS, paste0("<b>Total Deaths:</b> ", TOTAL_DEATHS))) %>%
+    tidyr::unite_('popup_values',c('new_LOCATION_NAME','new_EQ_PRIMARY','new_DEATHS'),sep ='') %>%
+    dplyr::mutate_(popup_values = ~ stringr::str_replace_all(popup_values,"[,]*NA[,]*","")) %>%
+    dplyr::mutate_(popup_values = ~ ifelse(popup_values=="","All Values are NA",popup_values))
+  
+  popup_values <- dplyr::collect(dplyr::select_(new_data,.dots=c('popup_values')))[[1]]
+  
+  return(popup_values)
+```
+
+```{r}
+
+```
+
+
+
+```{r}
+dat_new %>%
+dplyr::filter(COUNTRY == "JAPAN")%>%
+  dplyr::filter(DATE > '2010-01-01') %>%
+  dplyr::mutate(popup_text = eq_create_label())%>%
+  eq_map(annot_col = "popup_text")
+```
+
+```{r}
+df <- tibble(x = 1:5, y = c(1, 0, 1, 0, 1))
+
+zup <- function(df, zp.col) {
+
+  quo.col <- enquo(zp.col)
+
+  df %>% mutate(z = x * !!quo.col)
+
+}
+
+zup(df, y)
+```
+
+```{r}
+eq_create_label <- function(df){
+  df %>% dplyr::mutate(popup_values=paste(location, mag, tot, sep = " "))
+  ##popup_values <- dplyr::collect(dplyr::select_(new_data,.dots=c('popup_values')))[[1]]
+  
+  ##return(popup_values)
+}
+```
+
+```{r}
+eq_create_label(dat_new)
+```
+
+```{r}
+eq_location_clean <- function(dat = eq_clean_data()) {
+  clean_location <- dat %>%
+    tidyr::separate(LOCATION_NAME, c("first", "second"), sep = ":") %>%
+    dplyr::select(-first) %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(LOCATION_NAME = ifelse(is.na(second), "Unidentified",
+                                       stringi::stri_trans_totitle(tolower(second)))) %>%
+
+
+    dplyr::select(-second)
+
+
+}
+
+```
+
+
+
+
+
+
+```{r}
+eq_create_label <- function(df){
+  df %>%
+    dplyr::mutate(location = ifelse(!is.na(LOCATION_NAME),
+                                    paste0("<b>Location name:</b>", LOCATION_NAME, "<br />"),  "")) %>%
+    dplyr::mutate(mag = ifelse(!is.na(EQ_PRIMARY),
+                               paste0("<b>Magnitude:</b>", EQ_PRIMARY, "<br />"),  "")) %>%
+    dplyr::mutate(tot = ifelse(!is.na(TOTAL_DEATHS),
+                               paste0("<b>Total deaths:</b>", TOTAL_DEATHS, "<br />"),  ""))%>%
+    dplyr::mutate(popup_values=paste(location, mag, tot, sep = " "))
+  ##popup_values <- dplyr::collect(dplyr::select_(new_data,.dots=c('popup_values')))[[1]]
+  
+  ##return(popup_values)
+}
+```
+
+
+```{r}
+dat_new <- eq_location_clean()
+head(dat_new)
+```
+
+
+```{r}
+eq_create_label(dat_new)
+```
+
+
+
+
+```{r}
+eq_create_label <- function(df){
+  popup_text <- df %>%
+    ###rowwise%>%
+    dplyr::mutate(location = ifelse(!is.na(LOCATION_NAME),
+                                    paste0("<b>Location name:</b>", LOCATION_NAME, "<br />"),  "")) %>%
+    dplyr::mutate(mag = ifelse(!is.na(EQ_PRIMARY),
+                               paste0("<b>Magnitude:</b>", EQ_PRIMARY, "<br />"),  "")) %>%
+    dplyr::mutate(tot = ifelse(!is.na(TOTAL_DEATHS),
+                               paste0("<b>Total deaths:</b>", TOTAL_DEATHS, "<br />"),  ""))%>%
+    dplyr::mutate(popup_values=paste(location, mag, tot, sep = " "))%>% 
+    dplyr::select(popup_values)
+    ##dplyr::filter()
+  
+  ###popup_text[as.numeric(rownames(df)),]
+}
+```
+
+```{r}
+
+```
+
+
+```{r}
+popup <- eq_create_label(dat_new[1,])
+typeof(popup)
+length(popup)
+```
+```{r}
+head(popup)
+```
+
+```{r}
+dat_label <- dat_new %>%
+  dplyr::filter(COUNTRY == "JAPAN")%>%
+  dplyr::filter(DATE > '2010-01-01') %>%
+  dplyr::rowwise(.)%>%
+  dplyr::mutate(popup_text = eq_create_label(.))%>%
+  eq_map(annot_col = "popup_text")
+```
+
+```{r}
+dat_label
+```
+
+```{r}
+eq_location_clean <- function(dat = eq_clean_data()) {
+  clean_location <- dat %>%
+    tidyr::separate(LOCATION_NAME, c("first", "second"), sep = ":") %>%
+    dplyr::select(-first) %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(LOCATION_NAME = ifelse(is.na(second), "Unidentified",
+                                       stringi::stri_trans_totitle(tolower(second)))) %>%
+    dplyr::mutate(location = ifelse(!is.na(LOCATION_NAME),
+                                    paste0("<b>Location name:</b>", LOCATION_NAME, "<br />"),  "")) %>%
+    dplyr::mutate(mag = ifelse(!is.na(EQ_PRIMARY),
+                               paste0("<b>Magnitude:</b>", EQ_PRIMARY, "<br />"),  "")) %>%
+    dplyr::mutate(tot = ifelse(!is.na(TOTAL_DEATHS),
+                               paste0("<b>Total deaths:</b>", TOTAL_DEATHS, "<br />"),  ""))%>%
+
+    dplyr::select(-second)
+
+
+}
+
+```
+
+```{r}
+dat_new <- eq_location_clean()
+head(dat_new)
+```
+```{r}
+eq_create_label <- function(df){
+  return(as.data.frame(paste0(df$location, df$mag, df$tot)))
+}
+```
+
+```{r}
+popup <- eq_create_label(dat_new)
+typeof(popup)
+length(popup)
+```
+
+
+```{r}
+head(popup)
+```
+```{r}
+head(dat)
+```
+```{r}
+eq_map <- function(data, annot_col = NULL){
+    data%>%
+    leaflet::leaflet() %>%
+    leaflet::addTiles() %>%
+    leaflet::addCircleMarkers(lng =~LONGITUDE, lat =~LATITUDE,
+                              radius =~EQ_PRIMARY,
+                              weight = 2,
+                              color = "red",
+                              popup =as.character(data[[annot_col]])
+                              )
+
+
+}
+```
+
+
+
+
+```{r}
+dat_label <- dat %>%
+  dplyr::filter(COUNTRY == "JAPAN")%>%
+  dplyr::filter(DATE > '2010-01-01') %>%
+  #dplyr::mutate(popup_text = eq_create_label(.))%>%
+  eq_map(annot_col = "mag")
+```
+
+```{r}
+dat_label
+```
+
+
+
+```{r}
+dat <- eq_location_clean()
+
+head(dat)
+```
+
+```{r}
+eq_create_label<- function(df){
+  return(paste(df$location, df$mag, df$tot, sep = " "))
+}
+```
+
+```{r}
+eq_create_label <- function(data) {
+  loc <- ifelse(is.na(data$LOCATION_NAME),"",paste("<strong>Location:</strong>",data$LOCATION_NAME))
+  eq <- ifelse(is.na(data$EQ_PRIMARY),"",paste("<br><strong>Magnitude:</strong>",data$EQ_PRIMARY))
+  death <- ifelse(is.na(data$TOTAL_DEATHS),"",paste("<br><strong>Total deaths:</strong>",data$TOTAL_DEATHS))
+  paste0(loc,eq,death)
+}
+
+```
+
+```{r}
+popup <- dat %>%
+dplyr::filter(COUNTRY == "MEXICO" & lubridate::year(DATE) >= 2000) %>%
+eq_create_label(.)
+##eq_map(annot_col = "popup_text")
+```
+
+
+```{r}
+
+dat_selected <- dat %>%
+dplyr::filter(COUNTRY == "MEXICO" & lubridate::year(DATE) >= 2000)
+
+dat_selected$popup_text <- popup
+
+head(dat_selected)
+```
+
+```{r}
+
+```
+
+```{r}
+mutate(dat, popup_text = eq_create_label(dat))
+```
+
+
+
+```{r}
+eq_create_label(dat)
+```
+

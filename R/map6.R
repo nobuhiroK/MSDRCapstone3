@@ -19,13 +19,14 @@
 #' eq_clean_data() %>%
 #'    dplyr::filter(COUNTRY %in% c('USA', 'JAPAN')) %>%
 #'    dplyr::filter(DATE > '2000-01-01') %>%
-#'    ggplot(aes(x = DATE,
-#'               y = COUNTRY,
-#'               color = as.numeric(TOTAL_DEATHS),
-#'               size = as.numeric(EQ_PRIMARY)
-#'    )) +
-#'    geom_timeline() +
-#'    labs(size = "Richter scale value", color = "# deaths")
+#'     ggplot(aes(x = DATE,
+#'             y = COUNTRY,
+#'             colour = as.numeric(TOTAL_DEATHS),
+#'             size = as.numeric(EQ_PRIMARY)))+
+#'  geom_timeline()+
+#'  geom_timeline_label(aes(magnitude = as.numeric(EQ_PRIMARY),label = LOCATION_NAME, n_max = 5)) +
+#'  scale_size_continuous(name = 'Richter scale value') +
+#'  scale_color_continuous(name = '# of Deaths')
 #' }
 #' @export
 
@@ -163,16 +164,6 @@ GeomTimelineLabel <-
     default_aes = ggplot2::aes(
       n_max = NA),
 
-    # top_n_data = function(data, params){
-    #   top_n <- data$n_max[1]
-    #   if(is.numeric(top_n)){
-    #     dplyr::top_n(dplyr::group_by_(data, "group"), top_n, size)
-    #
-    #   } else {
-    #     data
-    #   }
-    #
-    # }
 
     draw_key = ggplot2::draw_key_point,
 

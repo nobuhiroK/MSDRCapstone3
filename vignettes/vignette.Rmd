@@ -1,0 +1,111 @@
+---
+title: "Vignette for MSDR package"
+author: "Nobuhiro Kikuchi"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+The `MSDRCapstone3` package provides helper functions to reasd and clean NOAA significant earthquakes data for visual anlyses of timeline map and leaflet map.
+
+You can install MSDRCapstone3 from github with:
+
+```{r}
+Sys.setlocale("LC_ALL", "C")
+```
+
+
+```{r gh-installation, eval = FALSE}
+# install.packages("devtools")
+devtools::install_github("nobuhiroK/MSDRCapstone3")
+```
+
+Packages to import
+```{r}
+library(MSDRCapstone3)
+library(dplyr)
+library(magrittr)
+library(ggplot2)
+library(leaflet)
+```
+
+#Loading Data
+
+row data from package data
+```{r}
+quakes <- read_signif()
+```
+
+
+row data from NOAA website
+```{r}
+quakes <- read_signif(URL=True)
+```
+
+cleaned data 
+```{r}
+quakes <- eq_clean_data()
+```
+
+cleaned location data 
+```{r}
+quakes <- eq_location_clean()
+```
+
+# Timeline plot 
+
+simple timeline map 
+```{r, eval=FALSE}
+quakes%>%
+dplyr::filter(COUNTRY %in% c('USA', 'JAPAN')) %>%
+dplyr::filter(DATE > '2000-01-01') %>%
+ggplot(aes(x = DATE,
+           y = COUNTRY,
+           color = as.numeric(TOTAL_DEATHS),
+           size = as.numeric(EQ_PRIMARY)
+           )) +
+  geom_timeline() +
+  labs(size = "Richter scale value", color = "# deaths")
+```
+
+timeline map with annotation
+
+```{r}
+quakes%>%
+dplyr::filter(COUNTRY %in% c('USA', 'JAPAN')) %>%
+dplyr::filter(DATE > '2000-01-01') %>%
+    ggplot(aes(x = DATE,
+               y = COUNTRY,
+               colour = as.numeric(TOTAL_DEATHS),
+               size = as.numeric(EQ_PRIMARY)))+
+  geom_timeline()+
+  geom_timeline_label(aes(magnitude = as.numeric(EQ_PRIMARY),label = LOCATION_NAME, n_max = 5)) +
+   scale_size_continuous(name = 'Richter scale value') +
+   scale_color_continuous(name = '# of Deaths') 
+```
+# Leaflet map
+
+annotation with selected column 'DATE'
+
+```{r}
+quakes%>%
+dplyr::filter(COUNTRY %in% c('JAPAN')) %>%
+dplyr::filter(DATE > '2000-01-01') %>%
+eq_map(annot_col="DATE")
+```
+
+annotation with custom made column 'popup' with eq_create_label()
+
+```{r}
+quakes %>%
+dplyr::filter(COUNTRY %in% c('JAPAN')) %>%
+dplyr::filter(DATE > '2000-01-01') %>%
+dplyr::mutate(popup_text = eq_create_label(.)) %>%
+eq_map(annot_col = "popup_text")
+
+```
+

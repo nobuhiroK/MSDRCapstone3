@@ -1,0 +1,60 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "README-"
+)
+```
+
+# MSDRCapstone3
+
+The goal of MSDRCapstone3 is to provide helper functions to read and clean NOAA significant earthquakes data for easy visual anlayses
+
+## Installation
+
+You can install MSDRCapstone3 from github with:
+
+```{r gh-installation, eval = FALSE}
+# install.packages("devtools")
+devtools::install_github("nobuhiroK/MSDRCapstone3")
+```
+
+## Example
+
+This is a basic example which shows you how to solve a common problem:
+
+
+load cleaned earthquaks data
+```{r example, eval=FALSE}
+quakes <- eq_location_clean()
+```
+
+
+simple timeline map 
+```{r, eval=FALSE}
+quakes%>%
+dplyr::filter(COUNTRY %in% c('USA', 'JAPAN')) %>%
+dplyr::filter(DATE > '2000-01-01') %>%
+ggplot(aes(x = DATE,
+           y = COUNTRY,
+           color = as.numeric(TOTAL_DEATHS),
+           size = as.numeric(EQ_PRIMARY)
+           )) +
+  geom_timeline() +
+  labs(size = "Richter scale value", color = "# deaths")
+```
+
+leaflet map with DATE annotation
+```{r, eval=FALSE}
+quakes%>%
+dplyr::filter(COUNTRY %in% c('JAPAN')) %>%
+dplyr::filter(DATE > '2000-01-01') %>%
+eq_map(annot_col="DATE")
+```
+

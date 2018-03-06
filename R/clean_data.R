@@ -8,8 +8,9 @@
 #'
 #'
 #' @examples
+#' \dontrun{
 #' dat <- read_signif(url = TRUE)
-#'
+#' }
 #' @export
 read_signif <- function(path = system.file("extdata", "signif.txt", package = "MSDRCapstone3"), url =FALSE) {
   if (url ==  TRUE){
@@ -33,14 +34,15 @@ read_signif <- function(path = system.file("extdata", "signif.txt", package = "M
 #'     LATITUDE and LONGITUDE columns converted to numeric class
 #'
 #'
-#' @param
-#' a tibble of NOAA signif data with 47 variables, default for signif.txt
-#' @return
-#' a tibble containing 48 vaiables
+#' @param dat
+#' A tibble of NOAA signif data with 47 variables, default for signif.txt
+#' @return A tibble containing 48 vaiables
 #'
 #'
 #' @examples
+#' \dontrun{
 #' clean_dat <- eq_clean_data()
+#' }
 #'
 #' @export
 eq_clean_data <- function(dat = read_signif()) {
@@ -68,7 +70,8 @@ eq_clean_data <- function(dat = read_signif()) {
 #' and converts names to title case (as opposed to all caps)
 #'
 #'
-#' @param dat, default for cleaned signif.txt from eq_clean_data()
+#' @param
+#' dat default for cleaned signif.txt from eq_clean_data()
 #'
 #' @return
 #' a cleand tibble of 48 variables
@@ -84,7 +87,7 @@ eq_location_clean <- function(dat = eq_clean_data()) {
     dplyr::select(-first) %>%
     ###dplyr::rowwise() %>%
     dplyr::mutate(LOCATION_NAME = ifelse(is.na(second), "Unidentified",
-                                       stringi::stri_trans_totitle(tolower(second)))) %>%
+                                       stringi::stri_trans_totitle(trimws(tolower(second))))) %>%
 
 
     dplyr::select(-second)

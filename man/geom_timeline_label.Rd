@@ -72,6 +72,8 @@ eq_clean_data() \%>\%
               size = as.numeric(EQ_PRIMARY)
    )) +
    geom_timeline() +
-   labs(size = "Richter scale value", color = "# deaths")
+ geom_timeline_label(aes(magnitude = as.numeric(EQ_PRIMARY),label = LOCATION_NAME, n_max = 5)) +
+ scale_size_continuous(name = 'Richter scale value') +
+ scale_color_continuous(name = '# of Deaths')
 }
 }

@@ -6,7 +6,7 @@ Author: Nobuhiro Kikuchi
 Maintainer: Nobuhiro Kikuchi <nobuhk@uw.edu>
 Description: functions to read and NOAA significant earthquakes data
     visualize timeline map, and show a leaflet map with custome annotation.
-License: License: MIT + file LICENSE
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports: dplyr,
@@ -15,8 +15,12 @@ Imports: dplyr,
     tidyr,
     stringi,
     ggplot2,
-    grid
+    grid,
+    leaflet,
+    readr,
+    scales
 RoxygenNote: 6.0.1
 Suggests: knitr,
-    rmarkdown
+    rmarkdown,
+    testthat
 VignetteBuilder: knitr

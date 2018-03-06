@@ -7,16 +7,18 @@
 eq_clean_data(dat = read_signif())
 }
 \arguments{
-\item{a}{tibble of NOAA signif data with 47 variables, default for signif.txt}
+\item{dat}{A tibble of NOAA signif data with 47 variables, default for signif.txt}
 }
 \value{
-a tibble containing 48 vaiables
+A tibble containing 48 vaiables
 }
 \description{
 A date column created by uniting the year, month, day and converting it to the Date class
     LATITUDE and LONGITUDE columns converted to numeric class
 }
 \examples{
+\dontrun{
 clean_dat <- eq_clean_data()
+}
 
 }

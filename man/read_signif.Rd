@@ -19,6 +19,7 @@ a tibble containing 47 vaiables
 Read NOAA significant earthquke data
 }
 \examples{
+\dontrun{
 dat <- read_signif(url = TRUE)
-
+}
 }

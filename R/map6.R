@@ -16,15 +16,14 @@
 #'
 #' @examples
 #' \dontrun{
-#' eq_clean_data() %>%
-#'    dplyr::filter(COUNTRY %in% c('USA', 'JAPAN')) %>%
-#'    dplyr::filter(DATE > '2000-01-01') %>%
-#'     ggplot(aes(x = DATE,
+#' eq_location_clean()%>%
+#' dplyr::filter(COUNTRY %in% c('USA', 'JAPAN')) %>%
+#'  dplyr::filter(DATE > '2000-01-01') %>%
+#'  ggplot(aes(x = DATE,
 #'             y = COUNTRY,
 #'             colour = as.numeric(TOTAL_DEATHS),
 #'             size = as.numeric(EQ_PRIMARY)))+
 #'  geom_timeline()+
-#'  geom_timeline_label(aes(magnitude = as.numeric(EQ_PRIMARY),label = LOCATION_NAME, n_max = 5)) +
 #'  scale_size_continuous(name = 'Richter scale value') +
 #'  scale_color_continuous(name = '# of Deaths')
 #' }
@@ -127,7 +126,9 @@ GeomTimeline <-
 #'               size = as.numeric(EQ_PRIMARY)
 #'    )) +
 #'    geom_timeline() +
-#'    labs(size = "Richter scale value", color = "# deaths")
+#'  geom_timeline_label(aes(magnitude = as.numeric(EQ_PRIMARY),label = LOCATION_NAME, n_max = 5)) +
+#'  scale_size_continuous(name = 'Richter scale value') +
+#'  scale_color_continuous(name = '# of Deaths')
 #' }
 #' @export
 

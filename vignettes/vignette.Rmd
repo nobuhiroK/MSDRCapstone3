@@ -14,9 +14,6 @@ The `MSDRCapstone3` package provides helper functions to reasd and clean NOAA si
 
 You can install MSDRCapstone3 from github with:
 
-```{r}
-Sys.setlocale("LC_ALL", "C")
-```
 
 
 ```{r gh-installation, eval = FALSE}
@@ -25,7 +22,7 @@ devtools::install_github("nobuhiroK/MSDRCapstone3")
 ```
 
 Packages to import
-```{r}
+```{r, eval=FALSE}
 library(MSDRCapstone3)
 library(dplyr)
 library(magrittr)
@@ -36,23 +33,23 @@ library(leaflet)
 #Loading Data
 
 row data from package data
-```{r}
+```{r, eval=FALSE}
 quakes <- read_signif()
 ```
 
 
 row data from NOAA website
-```{r}
+```{r, eval=FALSE}
 quakes <- read_signif(URL=True)
 ```
 
 cleaned data 
-```{r}
+```{r, eval=FALSE}
 quakes <- eq_clean_data()
 ```
 
 cleaned location data 
-```{r}
+```{r, eval=FALSE}
 quakes <- eq_location_clean()
 ```
 
@@ -74,7 +71,7 @@ ggplot(aes(x = DATE,
 
 timeline map with annotation
 
-```{r}
+```{r, eval=FALSE}
 quakes%>%
 dplyr::filter(COUNTRY %in% c('USA', 'JAPAN')) %>%
 dplyr::filter(DATE > '2000-01-01') %>%
@@ -91,7 +88,7 @@ dplyr::filter(DATE > '2000-01-01') %>%
 
 annotation with selected column 'DATE'
 
-```{r}
+```{r, eval=FALSE}
 quakes%>%
 dplyr::filter(COUNTRY %in% c('JAPAN')) %>%
 dplyr::filter(DATE > '2000-01-01') %>%
@@ -100,7 +97,7 @@ eq_map(annot_col="DATE")
 
 annotation with custom made column 'popup' with eq_create_label()
 
-```{r}
+```{r, eval=FALSE}
 quakes %>%
 dplyr::filter(COUNTRY %in% c('JAPAN')) %>%
 dplyr::filter(DATE > '2000-01-01') %>%

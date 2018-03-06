@@ -7,7 +7,7 @@
 eq_location_clean(dat = eq_clean_data())
 }
 \arguments{
-\item{dat, }{default for cleaned signif.txt from eq_clean_data()}
+\item{dat}{default for cleaned signif.txt from eq_clean_data()}
 }
 \value{
 a cleand tibble of 48 variables

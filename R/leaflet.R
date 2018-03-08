@@ -9,7 +9,7 @@
 #' shown with a circle, and the radius of the circle should be proportional
 #' to the earthquake's magnitude (EQ_PRIMARY).
 #'
-#' @param dataframe with significant earthquakes data
+#' @param data with significant earthquakes data
 #' @param annot_col a column for annotation
 #'
 #' @importFrom leaflet leaflet addTiles addCircleMarkers
@@ -45,9 +45,9 @@ eq_map <-  function(data,  annot_col = "DATE"){
 #'  @details If an earthquake is missing values for any of these,
 #'  both the label and the value should be skipped for that element of the tag.
 #'
+#'  #refactor to stadard evauation without mutation
 #'
-#'
-#' @param dataframe with significant earthquakes data
+#' @param df with significant earthquakes data
 #'
 #' @examples
 #' \dontrun{
@@ -60,14 +60,28 @@ eq_map <-  function(data,  annot_col = "DATE"){
 #'
 #'
 #' @export
+eq_create_label  <- function(df){
+  df$location <- ifelse(!is.na(df$LOCATION_NAME),
+                        paste0("<b>Location name:</b>",
+                        df$LOCATION_NAME, "<br />"),  " ")
+  df$mag <- ifelse(!is.na(df$EQ_PRIMARY),
+                        paste0("<b>Magnitude:</b>",
+                               df$EQ_PRIMARY, "<br />"),  " ")
+  df$tot <- ifelse(!is.na(df$TOTAL_DEATHS),
+                   paste0("<b>Total deaths:</b>",
+                          df$TOTAL_DEATHS, "<br />"),  " ")
+  return(paste(df$location, df$mag, df$tot, sep = " "))
 
-eq_create_label<- function(df){
-  dff <- df%>%
-  dplyr::mutate(location = ifelse(!is.na(LOCATION_NAME),
-                                  paste0("<b>Location name:</b>", LOCATION_NAME, "<br />"),  " ")) %>%
-    dplyr::mutate(mag = ifelse(!is.na(EQ_PRIMARY),
-                               paste0("<b>Magnitude:</b>", EQ_PRIMARY, "<br />"),  " ")) %>%
-    dplyr::mutate(tot = ifelse(!is.na(TOTAL_DEATHS),
-                               paste0("<b>Total deaths:</b>", TOTAL_DEATHS, "<br />"),  " "))
-  return(paste(dff$location, dff$mag, dff$tot, sep = " "))
+
 }
+
+# eq_create_label<- function(df){
+#   dff <- df%>%
+#   dplyr::mutate(location = ifelse(!is.na(LOCATION_NAME),
+#                                   paste0("<b>Location name:</b>", LOCATION_NAME, "<br />"),  " ")) %>%
+#     dplyr::mutate(mag = ifelse(!is.na(EQ_PRIMARY),
+#                                paste0("<b>Magnitude:</b>", EQ_PRIMARY, "<br />"),  " ")) %>%
+#     dplyr::mutate(tot = ifelse(!is.na(TOTAL_DEATHS),
+#                                paste0("<b>Total deaths:</b>", TOTAL_DEATHS, "<br />"),  " "))
+#   return(paste(dff$location, dff$mag, dff$tot, sep = " "))
+# }

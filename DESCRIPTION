@@ -18,7 +18,8 @@ Imports: dplyr,
     grid,
     leaflet,
     readr,
-    scales
+    scales,
+    SparkR
 RoxygenNote: 6.0.1
 Suggests: knitr,
     rmarkdown,

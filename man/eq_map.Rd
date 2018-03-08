@@ -7,9 +7,9 @@
 eq_map(data, annot_col = "DATE")
 }
 \arguments{
-\item{annot_col}{a column for annotation}
+\item{data}{with significant earthquakes data}
 
-\item{dataframe}{with significant earthquakes data}
+\item{annot_col}{a column for annotation}
 }
 \description{
 The function maps the epicenters (LATITUDE/LONGITUDE) and annotates

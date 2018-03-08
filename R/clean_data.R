@@ -23,15 +23,20 @@ read_signif <- function(path = system.file("extdata", "signif.txt", package = "M
 
 #' Clean the row signif_dat
 #'
+#' #refactor to standard evaluation instead of dplyr
+#'
 #' @importFrom dplyr mutate
 #' @importFrom magrittr %>%
 #' @importFrom lubridate make_date
 #' @importFrom tools toTitleCase
+#' @importFrom SparkR to_date
+#' @importFrom lubridate ymd
 #'
 #'
 #' @description
 #'     A date column created by uniting the year, month, day and converting it to the Date class
 #'     LATITUDE and LONGITUDE columns converted to numeric class
+#'
 #'
 #'
 #' @param dat
@@ -45,18 +50,34 @@ read_signif <- function(path = system.file("extdata", "signif.txt", package = "M
 #' }
 #'
 #' @export
-eq_clean_data <- function(dat = read_signif()) {
-  dt_clean_month_day_date_long_lat <- dat %>%
-    dplyr::mutate(MONTH = ifelse(is.na(MONTH), 1, MONTH)) %>%
-    dplyr::mutate(DAY = ifelse(is.na(DAY), 1, DAY)) %>%
-    dplyr::mutate(DATE = lubridate::make_date(YEAR, MONTH, DAY)) %>%
-    dplyr::mutate(LATITUDE = as.numeric(LATITUDE)) %>%
-    dplyr::mutate(LONGITUDE = as.numeric(LONGITUDE))
+#'
+eq_clean_data <-function(dat = read_signif()){
+  df <- data.frame(dat)
+  df$MONTH <- ifelse(is.na(df$MONTH), 1, df$MONTH)
+  df$DAY <- ifelse(is.na(df$DAY), 1, df$DAY)
 
+  df$DATE <- lubridate::make_date(df$YEAR, df$MONTH, df$DAY)
+  df$LATITUDE <- as.numeric(df$LATITUDE)
+  df$LONGITUDE <- as.numeric(df$LONGITUDE)
+  df
 
 }
 
+# eq_clean_data <- function(dat = read_signif()) {
+#   dt_clean_month_day_date_long_lat <- dat %>%
+#     dplyr::mutate(MONTH = ifelse(is.na(MONTH), 1, MONTH)) %>%
+#     dplyr::mutate(DAY = ifelse(is.na(DAY), 1, DAY)) %>%
+#     dplyr::mutate(DATE = lubridate::make_date(YEAR, MONTH, DAY)) %>%
+#     dplyr::mutate(LATITUDE = as.numeric(LATITUDE)) %>%
+#     dplyr::mutate(LONGITUDE = as.numeric(LONGITUDE))
+#
+#
+# }
+
 #' cleans the LOCATION_NAME
+#'
+#' #refactor to standard evaluation instead of dplyr
+#'
 #' @importFrom dplyr mutate
 #' @importFrom dplyr select
 #' @importFrom dplyr rowwise
@@ -82,19 +103,28 @@ eq_clean_data <- function(dat = read_signif()) {
 #'
 #' @export
 eq_location_clean <- function(dat = eq_clean_data()) {
-  clean_location <- dat %>%
-    tidyr::separate(LOCATION_NAME, c("first", "second"), sep = ":") %>%
-    dplyr::select(-first) %>%
-    ###dplyr::rowwise() %>%
-    dplyr::mutate(LOCATION_NAME = ifelse(is.na(second), "Unidentified",
-                                       stringi::stri_trans_totitle(trimws(tolower(second))))) %>%
-
-
-    dplyr::select(-second)
-
-
+  df <- data.frame(dat)
+  df$LOCATION_NAME <- stringi::stri_trans_totitle(trimws(tolower(sub("\\S+: +", "", df$LOCATION))))
+  df
 }
 
+
+
+
+# eq_location_clean <- function(dat = eq_clean_data()) {
+#   clean_location <- dat %>%
+#     tidyr::separate(LOCATION_NAME, c("first", "second"), sep = ":") %>%
+#     dplyr::select(-first) %>%
+#     ###dplyr::rowwise() %>%
+#     dplyr::mutate(LOCATION_NAME = ifelse(is.na(second), "Unidentified",
+#                                        stringi::stri_trans_totitle(trimws(tolower(second))))) %>%
+#
+#
+#     dplyr::select(-second)
+#
+#
+# }
+#
 
 
 

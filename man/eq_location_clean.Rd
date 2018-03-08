@@ -16,6 +16,9 @@ a cleand tibble of 48 variables
 stripping out the country name (including the colon)
 and converts names to title case (as opposed to all caps)
 }
+\details{
+#refactor to standard evaluation instead of dplyr
+}
 \examples{
 clean_location <- eq_location_clean()
 

@@ -16,6 +16,9 @@ A tibble containing 48 vaiables
 A date column created by uniting the year, month, day and converting it to the Date class
     LATITUDE and LONGITUDE columns converted to numeric class
 }
+\details{
+#refactor to standard evaluation instead of dplyr
+}
 \examples{
 \dontrun{
 clean_dat <- eq_clean_data()

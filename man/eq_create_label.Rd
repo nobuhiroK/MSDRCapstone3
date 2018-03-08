@@ -7,7 +7,7 @@
 eq_create_label(df)
 }
 \arguments{
-\item{dataframe}{with significant earthquakes data}
+\item{df}{with significant earthquakes data}
 }
 \description{
 This function should put together a character string for each earthquake
@@ -17,6 +17,8 @@ that will show the cleaned location (as cleaned by the eq_location_clean() funct
 
  @details If an earthquake is missing values for any of these,
  both the label and the value should be skipped for that element of the tag.
+
+ #refactor to stadard evauation without mutation
 }
 \examples{
 \dontrun{

@@ -1,8 +1,7 @@
 quakes_wrangled <- eq_location_clean()
 
 test_that("eq_location_clean returns a tbl_df, tbl, and data.frame", {
-  expect_equal(class(quakes_wrangled),
-               c("tbl_df","tbl", "data.frame"))
+  expect_equal(class(quakes_wrangled),"data.frame")
 })
 
 test_that("quakes_wrangled contains a DATE column", {
